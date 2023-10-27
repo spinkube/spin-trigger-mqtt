@@ -1,0 +1,9 @@
+manifest_version = "1"
+id = "mqtt-rust"
+description = "Mqtt message handler using Rust"
+tags = ["mqtt"]
+
+[parameters]
+project-description = { type = "string",  prompt = "Description", default = "" }
+mqtt-address = { type = "string", prompt = "Mqtt address", default = "mqtt://localhost:1883" }
+mqtt-topic = { type = "string", prompt = "Mqtt topic" }

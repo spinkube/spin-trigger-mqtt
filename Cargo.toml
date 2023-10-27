@@ -1,0 +1,23 @@
+[package]
+name = "trigger-mqtt"
+version = "0.2.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.68"
+clap = { version = "3.1.15", features = ["derive", "env"] }
+futures = "0.3.25"
+serde = "1.0.188"
+spin-app = { git = "https://github.com/fermyon/spin" }
+spin-core = { git = "https://github.com/fermyon/spin" }
+spin-trigger = { git = "https://github.com/fermyon/spin" }
+tokio = { version = "1.11", features = [ "full" ] }
+tokio-scoped = "0.2.0"
+# wasmtime = { version = "13.0.0", features = ["component-model"] }
+
+# Note: Spin Examples make use use this version of wasmtime
+wasmtime = { git = "https://github.com/bytecodealliance/wasmtime", rev = "2da78ca5c4c1e5a8cbc88a8ad3accf24bb4e6cfb", features = [
+  "component-model",
+] }

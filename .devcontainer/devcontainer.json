@@ -1,0 +1,43 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
+{
+	"name": "MQTT Spin Trigger SDK/Plugin",	    
+	"image": "mcr.microsoft.com/devcontainers/rust:0-1-bullseye",	
+	
+    // Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		// Using this feature to allow making use of host docker desktop with wasm support i.e. --platform wasi/wasm
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "sh ./.devcontainer/bootstrap.sh",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	"remoteUser": "root",
+
+	// Add the IDs of extensions you want installed when the container is created.	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",
+				"tamasfe.even-better-toml",
+				"vadimcn.vscode-lldb",
+				"usernamehw.errorlens",
+				"gruntfuggly.todo-tree",				
+				"github.copilot-chat",				
+				"streetsidesoftware.code-spell-checker",
+				"ms-vscode.makefile-tools",
+				"davidanson.vscode-markdownlint",
+				"bytecodealliance.wit-idl",
+				"ms-kubernetes-tools.vscode-kubernetes-tools"
+			]
+		}
+	}
+}

@@ -1,0 +1,16 @@
+spin_manifest_version = "1"
+authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
+description = "Demo app to send and receive MQTT messages."
+name = "mqtt-app"
+trigger = { type = "mqtt", address = "mqtt://localhost:1883", qos = 1 }
+version = "0.1.0"
+
+[[component]]
+id = "mqtt-app"
+source = "target/wasm32-wasi/release/mqtt_app.wasm"
+allowed_http_hosts = []
+[component.trigger]
+topic = "messages-in"
+qos = 0
+[component.build]
+command = "cargo build --target wasm32-wasi --release"
