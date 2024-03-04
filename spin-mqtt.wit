@@ -1,43 +1,24 @@
 // WIT design guidelines https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md
-package spin:mqtt-trigger-sdk
+// https://component-model.bytecodealliance.org/design/wit.html
+package spin:mqtt-trigger-sdk;
 
-interface outbound-mqtt {
-  use mqtt-types.{payload, error, qos}
-
-  // Publish an MQTT message to the specified topic and return an error, if any.
-  publish: func(topic: string, payload: payload) -> result<_, error>
-}
-
-interface mqtt-types {
-  // General purpose error.
-  enum error {
+world spin-mqtt {
+  /// General purpose error.
+    enum error {
       success,
       error,
   }
 
-  // MQTT QoS levels.
+  /// MQTT QoS levels.
   enum qos {
       at-most-once,
       at-least-once,
       exactly-once,
   }
 
-  // The message payload.
-  type payload = list<u8>
-}
+  /// The message payload.
+  type payload = list<u8>;
 
-interface inbound-mqtt {
-  use mqtt-types.{payload, error}
-
-  // The entrypoint for a Mqtt handler.
-  handle-message: func(message: payload) -> result<_, error>
-}
-
-world spin-mqtt {
-  // import fermyon:spin/config
-  // import fermyon:spin/variables@2.0.0
-  import outbound-mqtt   
-  
-  // The entrypoint for a Mqtt handler.
-  export inbound-mqtt  
+  /// The entrypoint for a Mqtt handler in wasm component  
+  export handle-message: func(message: payload);
 }

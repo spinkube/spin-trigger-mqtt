@@ -1,13 +1,14 @@
-# An MQTT Plugin for Fermyon Spin Framework
+# An MQTT Trigger/Plugin for Fermyon Spin Framework
 
-Objective of this repo is to provide a robust plugin to both receive and send MQTT messages from Spin based wasm components.
 MQTT is a dominant communication protocol in IoT and edge scenarios, used by major products and services in manufacturing, automotive and other industries.
+Objective of this repo is to provide a robust plugin/trigger to receive MQTT messages in the Spin based wasm components.
 
 ## Usage Guidance
 
-### Install Plugin
+This plugin is a trigger plugin i.e. it is activated when message is received on a configured MQTT topic.
+The plugin then instantiates a Wasm component and injects the message to the component, which in turn process the message and can optionally publish the messages to any of the available targets in Spin e.g. MQTT, Redis, Http endpoints.
 
-A new Spin plugin is developed to receive and send messages from Spin apps.
+### Install Plugin
 
 Install MQTT Plugin:
 
@@ -17,7 +18,7 @@ If you want to learn more about Spin's plugin model, read [here](https://www.fer
 
 ### Install Template
 
-[Spin templates](https://www.fermyon.com/blog/managing-spin-templates-and-plugins) allow a Spin developer to quickly create the skeleton of an application or component, ready for the application logic to be filled in. As part of this repo, a new template is created to help build applications which make use of MQTT as a communication protocol.
+[Spin templates](https://www.fermyon.com/blog/managing-spin-templates-and-plugins) allow a Spin developer to quickly create the skeleton of an application or component, ready for the application logic to be filled in. As part of this repo, a new template is created to help build applications which make use of MQTT as a communication protocol/trigger.
 
 Install MQTT Template:
 
@@ -31,19 +32,13 @@ Select the template called `mqtt-rust`
 
 ## State of Play
 
-1. Send and Receive Messages
-2. MQTT QoS Support
-3. Min Spin version supported 1.4?
+1. Authenticates using anonymous and username/password to MQTT server.
+2. Receive messages from an MQTT topic per configured QoS.
+3. Template way of installing trigger/plugin needs fixing.
+[more MQTT client/subscription attributes will be available soon]
 
 ## Dev Loop
 
-* `cargo build --release`
-* Copy: `cp ./target/release/spin-mqtt-trigger-sdk .`
-* `tar czvf spin-mqtt-trigger-sdk.tar.gz ./target/release/spin-mqtt-trigger-sdk`
-* Update the plugin manifest (`spin-mqtt-trigger-sdk.json`):
-  * Get the SHA: `shasum -a 256 spin-mqtt-trigger-sdk.tar.gz` and copy it into the `sha256` field
-  * Update the URL too, to reflect the directory where the tar file is
-* `spin plugin install --file ./spin-mqtt-trigger-sdk.json --yes`
-
-# (cargo build --release) && (cp ./target/release/trigger-orchestrator .) && (tar czvf trigger-orchestrator.tar.gz trigger-orchestrator) && (shasum -a 256 trigger-orchestrator.tar.gz)
-# Then you should be able to `spin build --up` the guest.
+* Install `Spin` from [here](https://developer.fermyon.com/spin/v2/install).
+* Run `make` to build and install the plugin locally.
+* Run `spin build --up --from examples/mqtt-app/spin.toml` to run example Spin app.

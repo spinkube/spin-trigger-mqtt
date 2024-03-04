@@ -23,6 +23,8 @@ install_plugin:
 	@echo "Updating sha256 in plugin manfiest..."
 	sed -i 's/"sha256": "[a-f0-9]\{64\}"/"sha256": "$(SHA256)"/' ./trigger-mqtt.json
 	spin plugin uninstall trigger-mqtt && spin plugin upgrade --file ./trigger-mqtt.json --yes
+	spin plugins list --installed | grep trigger-mqtt
+
 	rm trigger-mqtt.tar.gz
 	rm trigger-mqtt
 

@@ -1,31 +1,24 @@
-// use fermyon::spin::variables;
-
-use exports::spin::mqtt_trigger_sdk::inbound_mqtt::Guest;
-// use spin_core::async_trait;
-use spin::mqtt_trigger_sdk::{
-    mqtt_types::Error,
-    outbound_mqtt,    
-};
+use chrono::{DateTime, Utc};
 
 wit_bindgen::generate!({
     world: "spin-mqtt",
-    path: "../../spin-mqtt.wit",
+    path: "../../",
     exports: {
-        "spin:mqtt-trigger-sdk/inbound-mqtt": SpinMqtt
+        world: SpinMqtt
     }
 });
 
 struct SpinMqtt;
 
-// #[async_trait]
-impl Guest for SpinMqtt {
-    fn handle_message(message: Vec<u8>) -> Result<(), Error> {
-        println!("Message received by wasm component: {}", String::from_utf8_lossy(&message));
-        // Add Spin config wit to extract config values from spin.toml e.g. topic
-        
-        // Echo message back to the Mqtt broker.        
-        // outbound_mqtt::publish("message-out", &message)?;
+impl Guest for SpinMqtt {    
+    fn handle_message(message: Vec<u8>) {               
+        let datetime: DateTime<Utc> = std::time::SystemTime::now().into();
+        let formatted_time = datetime.format("%Y-%m-%d %H:%M:%S.%f").to_string();
 
-        Ok(())
+        println!(
+            "{:?} Message received by wasm component: '{}'",
+            formatted_time,
+            String::from_utf8_lossy(&message)
+        );
     }
 }
