@@ -43,7 +43,7 @@ struct TriggerMetadata {
     address: String,
     username: String,
     password: String,
-    keep_alive_interval: u64,
+    keep_alive_interval: String,
 }
 
 // Per-component settings (raw serialization format)
@@ -52,7 +52,7 @@ struct TriggerMetadata {
 pub struct MqttTriggerConfig {
     component: String,
     topic: String,
-    qos: i32,
+    qos: String,
 }
 
 const TRIGGER_METADATA_KEY: MetadataKey<TriggerMetadata> = MetadataKey::new("trigger");
@@ -77,11 +77,18 @@ impl TriggerExecutor for MqttTrigger {
         let keep_alive_interval = engine
             .app()
             .require_metadata(TRIGGER_METADATA_KEY)?
-            .keep_alive_interval;
+            .keep_alive_interval
+            .parse::<u64>()?;
 
         let component_configs = engine
             .trigger_configs()
-            .map(|(_, config)| (config.component.clone(), config.qos, config.topic.clone()))
+            .map(|(_, config)| {
+                (
+                    config.component.clone(),
+                    config.qos.parse::<i32>().unwrap(),
+                    config.topic.clone(),
+                )
+            })
             .collect();
 
         Ok(Self {

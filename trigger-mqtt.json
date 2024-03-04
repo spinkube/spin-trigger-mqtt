@@ -10,7 +10,7 @@
             "os": "linux",
             "arch": "amd64",
             "url": "file:///home/vmadmin/repos/spin-mqtt-trigger-sdk/trigger-mqtt.tar.gz",
-            "sha256": "f4ec5661f6acbda0a3b57ccb14c9c7d56bd3259ac8741e3e4de65b02fb94939b"
+            "sha256": "3483ad3aa9824243da3c2f737850c403260aa221984371a6938d1b0c30d9493a"
         }        
     ]
 }

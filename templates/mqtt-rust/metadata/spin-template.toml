@@ -1,4 +1,4 @@
-# TODO: Add support for int for some parameters below and wit file copy.
+# TODO: wit file copy.
 manifest_version = "1"
 id = "mqtt-rust"
 description = "Mqtt message handler/trigger using Rust."
@@ -9,6 +9,8 @@ project-description = { type = "string",  prompt = "Description", default = "" }
 mqtt-address = { type = "string", prompt = "Mqtt Address", default = "mqtt://localhost:1883" }
 mqtt-username = { type = "string", prompt = "Mqtt Username", default = "" }
 mqtt-password = { type = "string", prompt = "Mqtt Password", default = "" }
-mqtt-keep_alive_interval = { type = "string", prompt = "Mqtt Keep Alive Interval (Secs)", default = "30" }
+# Mqtt Keep Alive Interval is pattern matched with a number between 0-65535.
+mqtt-keep_alive_interval = { type = "string", prompt = "Mqtt Keep Alive Interval (Secs between 0-65535)", default = "30", pattern = "^(6553[0-5]|655[0-2]\\d|65[0-4]\\d{2}|6[0-4]\\d{3}|[1-5]\\d{4}|[1-9]\\d{0,3}|0)$"}
 mqtt-topic = { type = "string", prompt = "Mqtt Topic" }
-mqtt-qos = { type = "string", prompt = "Mqtt QoS for Topic", default = "1"}
+# Mqtt QoS for Topic is pattern matched with a number between 0-2.
+mqtt-qos = { type = "string", prompt = "Mqtt QoS for Topic (between 0-2)", default = "1", pattern = "^[0-2]$" }
