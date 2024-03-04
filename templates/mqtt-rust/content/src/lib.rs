@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 
 wit_bindgen::generate!({
     world: "spin-mqtt",
-    path: "../../",
+    path: ".",
     exports: {
         world: SpinMqtt
     }
