@@ -12,7 +12,9 @@ The plugin then instantiates a Wasm component and injects the message to the com
 
 Install MQTT Plugin:
 
-`spin plugin install --url https://github.com/suneetnangia/spin-mqtt-trigger-sdk/releases/download/trigger-mqtt.json --yes`
+`spin plugin install --url https://raw.githubusercontent.com/suneetnangia/spin-mqtt-trigger-sdk/main/trigger-mqtt.json --yes`
+
+[Note: release management for multiple versions of this plugin/trigger will be added soon]
 
 If you want to learn more about Spin's plugin model, read [here](https://www.fermyon.com/blog/managing-spin-templates-and-plugins).
 
