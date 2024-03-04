@@ -9,7 +9,6 @@
     ],
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
-        "./examples/mqtt-app/Cargo.toml",
-        "./examples/redis-app/Cargo.toml"
+        "./examples/mqtt-app/Cargo.toml",        
     ]
 }
