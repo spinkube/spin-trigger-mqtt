@@ -16,8 +16,4 @@ spin-trigger = { git = "https://github.com/fermyon/spin" }
 tokio = { version = "1.11", features = [ "full" ] }
 tokio-scoped = "0.2.0"
 paho-mqtt = { version = "0.12.3", default-features = false, features = ["vendored-ssl"] }
-# TODO: Update wasmtime to 18.0.1
-# wasmtime = { version = "18.0.1", features = ["component-model"]}
-wasmtime = { git = "https://github.com/bytecodealliance/wasmtime", rev = "2da78ca5c4c1e5a8cbc88a8ad3accf24bb4e6cfb", features = [
-  "component-model",
-] }
+wasmtime = { version = "18.0.1", features = ["component-model"]}

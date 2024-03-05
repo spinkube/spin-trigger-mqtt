@@ -2,14 +2,8 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "MQTT Spin Trigger SDK/Plugin",	    
-	"image": "mcr.microsoft.com/devcontainers/rust:0-1-bullseye",	
-	
-    // Features to add to the dev container. More info: https://containers.dev/features.
-	"features": {
-		// Using this feature to allow making use of host docker desktop with wasm support i.e. --platform wasi/wasm
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
-	},
-
+	"image": "mcr.microsoft.com/devcontainers/rust:1-bookworm",	
+	 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
