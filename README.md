@@ -37,10 +37,13 @@ Select the template called `mqtt-rust`
 1. Authenticates using anonymous and username/password to MQTT server.
 2. Receive messages from an MQTT topic per configured QoS.
 3. Template way of installing trigger/plugin needs fixing.
+
 [more MQTT client/subscription attributes will be available soon]
 
 ## Dev Loop
 
-* Install `Spin` from [here](https://developer.fermyon.com/spin/v2/install).
+* Open the repo in Dev Container or in pre-configured GitHub [Codespace](https://codespaces.new/suneetnangia/spin-mqtt-trigger-sdk)
 * Run `make` to build and install the plugin locally.
-* Run `spin build --up --from examples/mqtt-app/spin.toml` to run example Spin app.
+* Update `examples/mqtt-app/spin.toml` to reflect your MQTT server details and ensure it's accessible on the network.
+* Run `spin build --up --from examples/mqtt-app/spin.toml` to run the example Spin app.
+* Run `mqttx pub -t 'messages-in01' -h '<mqtt server ip>' -p 1883 -u <user> -P <password> -m 'Hello to  MQTT Spin Component!'` with the hostname and credentials for your server, to publish the message which is then received by Spin app.

@@ -1,4 +1,3 @@
-# TODO: wit file copy.
 manifest_version = "1"
 id = "mqtt-rust"
 description = "Mqtt message handler/trigger using Rust."
