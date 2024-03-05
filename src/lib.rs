@@ -1,12 +1,11 @@
 use anyhow::Ok;
-use paho_mqtt::Client;
-use std::time::Duration;
-// use anyhow::Error;
 use clap::Args;
+use paho_mqtt::Client;
 use serde::{Deserialize, Serialize};
 use spin_app::MetadataKey;
-use spin_core::{async_trait, Linker};
+use spin_core::async_trait;
 use spin_trigger::{EitherInstance, TriggerAppEngine, TriggerExecutor};
+use std::time::Duration;
 
 // https://docs.rs/wasmtime/latest/wasmtime/component/macro.bindgen.html
 wasmtime::component::bindgen!({
