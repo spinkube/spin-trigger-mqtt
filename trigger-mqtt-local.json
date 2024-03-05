@@ -2,15 +2,15 @@
     "name": "trigger-mqtt",
     "description": "Mqtt trigger plugin for linux/amd64, more platforms will be added later.",
     "homepage": "https://github.com/suneetnangia/spin-mqtt-trigger-sdk",
-    "version": "0.2.0",
+    "version": "0.1.0",
     "spinCompatibility": ">=2.3",
     "license": "Apache-2.0",
     "packages": [
         {
             "os": "linux",
             "arch": "amd64",
-            "url": "file:///home/vmadmin/repos/spin-mqtt-trigger-sdk/trigger-mqtt.tar.gz",            
-            "sha256": "71e300a84ef695b2c7d00e0f433aa0a678bc6f26703dbc4f694a74adca4d636c"
+            "url": "file:///workspaces/spin-mqtt-trigger-sdk/trigger-mqtt.tar.gz",            
+            "sha256": "235e29ac78dee908a2bda53a709087357e503627de620e68cea1ad976059ecd4"
         }
     ]
 }

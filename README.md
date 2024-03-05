@@ -12,7 +12,7 @@ The plugin then instantiates a Wasm component and injects the message to the com
 
 Install MQTT Plugin:
 
-`spin plugin install --url https://raw.githubusercontent.com/suneetnangia/spin-mqtt-trigger-sdk/main/trigger-mqtt.json --yes`
+```spin plugin install --url https://raw.githubusercontent.com/suneetnangia/spin-mqtt-trigger-sdk/main/trigger-mqtt.json --yes```
 
 [Note: release management for multiple versions of this plugin/trigger will be added soon]
 
@@ -24,11 +24,11 @@ If you want to learn more about Spin's plugin model, read [here](https://www.fer
 
 Install MQTT Template:
 
-`spin templates install --git https://github.com/suneetnangia/spin-mqtt-trigger-sdk --upgrade`
+```spin templates install --git https://github.com/suneetnangia/spin-mqtt-trigger-sdk --upgrade```
 
 ### Create Spin App
 
-`spin new mqtt-app`
+spin new mqtt-app```
 
 Select the template called `mqtt-rust`
 
@@ -43,7 +43,7 @@ Select the template called `mqtt-rust`
 ## Dev Loop
 
 * Open the repo in Dev Container or in pre-configured GitHub [Codespace](https://codespaces.new/suneetnangia/spin-mqtt-trigger-sdk)
-* Run `make` to build and install the plugin locally.
-* Update `examples/mqtt-app/spin.toml` to reflect your MQTT server details and ensure it's accessible on the network.
-* Run `spin build --up --from examples/mqtt-app/spin.toml` to run the example Spin app.
-* Run `mqttx pub -t 'messages-in01' -h '<mqtt server ip>' -p 1883 -u <user> -P <password> -m 'Hello to  MQTT Spin Component!'` with the hostname and credentials for your server, to publish the message which is then received by Spin app.
+* Run ```make``` to build and install the plugin locally.
+* Update ```examples/mqtt-app/spin.toml``` to reflect your MQTT server details and ensure it's accessible on the network.
+* Run ```spin build --up --from examples/mqtt-app/spin.toml``` to run the example Spin app.
+* Run ```mqttx pub -t 'messages-in01' -h '<mqtt server ip>' -p 1883 -u <user> -P <password> -m 'Hello to  MQTT Spin Component!'``` with the hostname and credentials for your server, to publish the message which is then received by Spin app.
