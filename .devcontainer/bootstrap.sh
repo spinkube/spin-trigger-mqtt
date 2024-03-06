@@ -1,10 +1,8 @@
-# Installs latest stable toolchain for Rust and clippy/fmt for this toolchain
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-PATHRUSTUP=$HOME/.cargo/bin
-$PATHRUSTUP/rustup update stable && $PATHRUSTUP/rustup default stable && $PATHRUSTUP/rustup component add clippy rustfmt
+# Updates latest stable toolchain for Rust and clippy/fmt for this toolchain
+rustup update stable && rustup default stable && rustup component add clippy rustfmt
 
 # Installs wasm32 compiler targets
-$PATHRUSTUP/rustup target add wasm32-wasi wasm32-unknown-unknown
+rustup target add wasm32-wasi wasm32-unknown-unknown
 
 # Installs cmake
 sudo apt update && sudo apt install cmake -y
