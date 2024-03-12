@@ -15,5 +15,17 @@ spin-core = { git = "https://github.com/fermyon/spin" }
 spin-trigger = { git = "https://github.com/fermyon/spin" }
 tokio = { version = "1.11", features = [ "full" ] }
 tokio-scoped = "0.2.0"
+tracing = { version = "0.1", features = ["log"] }
+tracing-subscriber = { version = "0.3.7", features = ["env-filter"] }
 paho-mqtt = { version = "0.12.3", default-features = false, features = ["vendored-ssl"] }
 wasmtime = { version = "18.0.1", features = ["component-model"]}
+
+[workspace]
+members = ["sdk", "sdk/macro"]
+
+[workspace.package]
+version = "0.2.0"
+edition = "2021"
+
+[workspace.dependencies]
+wit-bindgen = "0.16.0"

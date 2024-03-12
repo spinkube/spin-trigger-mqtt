@@ -1,12 +1,11 @@
 // WIT design guidelines https://github.com/WebAssembly/component-model/blob/main/design/mvp/WIT.md
 // https://component-model.bytecodealliance.org/design/wit.html
-package spin:mqtt-trigger-sdk;
+package spin:mqtt-trigger;
 
-world spin-mqtt {
+interface spin-mqtt-types {
   /// General purpose error.
-    enum error {
-      success,
-      error,
+  variant error {
+      other(string),
   }
 
   /// MQTT QoS levels.
@@ -18,7 +17,15 @@ world spin-mqtt {
 
   /// The message payload.
   type payload = list<u8>;
+}
+
+world spin-mqtt {
+  use spin-mqtt-types.{error, payload};
 
   /// The entrypoint for a Mqtt handler in wasm component  
-  export handle-message: func(message: payload);
+  export handle-message: func(message: payload) -> result<_, error>;
+}
+
+world spin-mqtt-sdk {
+  import spin-mqtt-types;
 }
