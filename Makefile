@@ -27,7 +27,7 @@ build_plugin:
 .PHONY: install_plugin
 install_plugin:
 	@echo "Installing Mqtt Plugin in Spin..."
-	spin plugins upgrade pluginify -y
+	spin plugins update && spin plugins upgrade pluginify -y
 	spin pluginify --install
 	
 .PHONY: clean
