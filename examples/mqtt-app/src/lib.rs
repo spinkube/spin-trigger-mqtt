@@ -1,5 +1,5 @@
-use spin_mqtt_sdk::{mqtt_component, Payload};
 use chrono::{DateTime, Utc};
+use spin_mqtt_sdk::{mqtt_component, Payload};
 
 #[mqtt_component]
 fn handle_message(message: Payload) -> anyhow::Result<()> {
