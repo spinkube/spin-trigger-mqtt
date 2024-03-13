@@ -1,4 +1,4 @@
-use anyhow::Ok;
+use anyhow::{anyhow, Ok};
 use clap::Args;
 use paho_mqtt::Client;
 use serde::{Deserialize, Serialize};
@@ -131,9 +131,10 @@ impl TriggerExecutor for MqttTrigger {
 
                         for msg in client.start_consuming() {
                             if let Some(msg) = msg {
-                                self.handle_mqtt_event(component_id, &msg.payload_str())
+                                _ = self
+                                    .handle_mqtt_event(component_id, &msg.payload_str())
                                     .await
-                                    .unwrap();
+                                    .map_err(|err| tracing::error!("{err}"));
                             } else {
                                 continue;
                             }
@@ -161,6 +162,7 @@ impl MqttTrigger {
 
         instance
             .call_handle_message(store, &message.as_bytes().to_vec())
-            .await
+            .await?
+            .map_err(|err| anyhow!("failed to execute guest: {err}"))
     }
 }

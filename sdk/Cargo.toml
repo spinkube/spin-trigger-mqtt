@@ -1,0 +1,12 @@
+[package]
+name = "spin-mqtt-sdk"
+version = { workspace = true }
+edition = { workspace = true }
+include = ["../spin-mqtt.wit"]
+
+[lib]
+name = "spin_mqtt_sdk"
+
+[dependencies]
+spin-mqtt-macro = { path = "macro" }
+wit-bindgen = { workspace = true }

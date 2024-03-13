@@ -9,7 +9,9 @@ edition = "2021"
 crate-type = [ "cdylib" ]
 
 [dependencies]
-wit-bindgen = "0.13.0"
+anyhow = "1"
 chrono = "*"
+spin-mqtt-sdk = { path = "../../sdk" }
+
 
 [workspace]

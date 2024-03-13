@@ -1,0 +1,15 @@
+[package]
+name = "spin-mqtt-macro"
+version = { workspace = true }
+edition = { workspace = true }
+include = ["../../spin-mqtt.wit"]
+
+[lib]
+name = "spin_mqtt_macro"
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1"
+quote = "1.0"
+syn = { version = "1.0", features = ["full"] }
+wit-bindgen = { workspace = true }
