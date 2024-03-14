@@ -1,10 +1,11 @@
-use anyhow::{anyhow, Ok};
+use anyhow::{anyhow, Context, Ok};
 use clap::Args;
 use paho_mqtt::Client;
 use serde::{Deserialize, Serialize};
 use spin_app::MetadataKey;
 use spin_core::async_trait;
 use spin_trigger::{EitherInstance, TriggerAppEngine, TriggerExecutor};
+use std::sync::Arc;
 use std::time::Duration;
 
 // https://docs.rs/wasmtime/latest/wasmtime/component/macro.bindgen.html
@@ -25,8 +26,9 @@ pub struct CliArgs {
 }
 
 // The trigger structure with all values processed and ready
+#[derive(Clone)]
 pub struct MqttTrigger {
-    engine: TriggerAppEngine<Self>,
+    engine: Arc<TriggerAppEngine<Self>>,
     address: String,
     username: String,
     password: String,
@@ -79,19 +81,19 @@ impl TriggerExecutor for MqttTrigger {
             .keep_alive_interval
             .parse::<u64>()?;
 
-        let component_configs = engine
-            .trigger_configs()
-            .map(|(_, config)| {
-                (
-                    config.component.clone(),
-                    config.qos.parse::<i32>().unwrap(),
-                    config.topic.clone(),
-                )
-            })
-            .collect();
+        let component_configs =
+            engine
+                .trigger_configs()
+                .try_fold(vec![], |mut acc, (_, config)| {
+                    let component = config.component.clone();
+                    let qos = config.qos.parse::<i32>()?;
+                    let topic = config.topic.clone();
+                    acc.push((component, qos, topic));
+                    Ok(acc)
+                })?;
 
         Ok(Self {
-            engine,
+            engine: Arc::new(engine),
             address,
             username,
             password,
@@ -105,46 +107,39 @@ impl TriggerExecutor for MqttTrigger {
             for component in &self.component_configs {
                 self.handle_mqtt_event(&component.0, "test message").await?;
             }
+
+            Ok(())
         } else {
             tokio::spawn(async move {
                 // This trigger spawns threads, which Ctrl+C does not kill. So
                 // for this case we need to detect Ctrl+C and shut those threads
                 // down. For simplicity, we do this by terminating the process.
-                tokio::signal::ctrl_c().await.unwrap();
+                tokio::signal::ctrl_c()
+                    .await
+                    .expect("failed to listen for Ctrl+C");
                 std::process::exit(0);
             });
 
-            tokio_scoped::scope(|scope| {
-                // TODO: remove unwrap to avoid panics and configure any retries etc.
-                for (component_id, mqtt_qos, mqtt_topic) in &self.component_configs {
-                    scope.spawn(async {
-                        // Receive the messages here from the specific topic in mqtt broker.
-                        let client = Client::new(self.address.clone()).unwrap();
-                        let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
-                            .keep_alive_interval(Duration::from_secs(self.keep_alive_interval))
-                            .user_name(&self.username)
-                            .password(&self.password)
-                            .finalize();
+            let tasks: Vec<_> = self
+                .component_configs
+                .clone()
+                .into_iter()
+                .map(|(component_id, mqtt_qos, mqtt_topic)| {
+                    let trigger = self.clone();
+                    tokio::spawn(async move {
+                        trigger
+                            .run_listener(component_id.clone(), mqtt_qos, mqtt_topic.clone())
+                            .await
+                    })
+                })
+                .collect();
 
-                        client.connect(conn_opts).unwrap();
-                        client.subscribe(mqtt_topic, *mqtt_qos).unwrap();
+            // wait for the first handle to be returned and drop the rest
+            let (result, _, rest) = futures::future::select_all(tasks).await;
 
-                        for msg in client.start_consuming() {
-                            if let Some(msg) = msg {
-                                _ = self
-                                    .handle_mqtt_event(component_id, &msg.payload_str())
-                                    .await
-                                    .map_err(|err| tracing::error!("{err}"));
-                            } else {
-                                continue;
-                            }
-                        }
-                    });
-                }
-            });
+            drop(rest);
+            result?
         }
-
-        Ok(())
     }
 }
 
@@ -164,5 +159,40 @@ impl MqttTrigger {
             .call_handle_message(store, &message.as_bytes().to_vec())
             .await?
             .map_err(|err| anyhow!("failed to execute guest: {err}"))
+    }
+
+    async fn run_listener(
+        &self,
+        component_id: String,
+        qos: i32,
+        topic: String,
+    ) -> anyhow::Result<()> {
+        // Receive the messages here from the specific topic in mqtt broker.
+        let client = Client::new(self.address.clone())?;
+        let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
+            .keep_alive_interval(Duration::from_secs(self.keep_alive_interval))
+            .user_name(&self.username)
+            .password(&self.password)
+            .finalize();
+
+        client
+            .connect(conn_opts)
+            .context(format!("failed to connect to {:?}", self.address))?;
+        client
+            .subscribe(&topic, qos)
+            .context(format!("failed to subscribe to {topic:?}"))?;
+
+        for msg in client.start_consuming() {
+            if let Some(msg) = msg {
+                _ = self
+                    .handle_mqtt_event(&component_id, &msg.payload_str())
+                    .await
+                    .map_err(|err| tracing::error!("{err}"));
+            } else {
+                continue;
+            }
+        }
+
+        Ok(())
     }
 }
