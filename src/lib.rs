@@ -1,6 +1,6 @@
-use anyhow::{anyhow, Context, Ok};
+use anyhow::{anyhow, Context};
 use clap::Args;
-use paho_mqtt::Client;
+use paho_mqtt::AsyncClient;
 use serde::{Deserialize, Serialize};
 use spin_app::MetadataKey;
 use spin_core::async_trait;
@@ -89,7 +89,7 @@ impl TriggerExecutor for MqttTrigger {
                     let qos = config.qos.parse::<i32>()?;
                     let topic = config.topic.clone();
                     acc.push((component, qos, topic));
-                    Ok(acc)
+                    anyhow::Ok(acc)
                 })?;
 
         Ok(Self {
@@ -105,7 +105,8 @@ impl TriggerExecutor for MqttTrigger {
     async fn run(self, config: Self::RunConfig) -> anyhow::Result<()> {
         if config.test {
             for component in &self.component_configs {
-                self.handle_mqtt_event(&component.0, "test message").await?;
+                self.handle_mqtt_event(&component.0, b"test message".to_vec())
+                    .await?;
             }
 
             Ok(())
@@ -144,7 +145,7 @@ impl TriggerExecutor for MqttTrigger {
 }
 
 impl MqttTrigger {
-    async fn handle_mqtt_event(&self, component_id: &str, message: &str) -> anyhow::Result<()> {
+    async fn handle_mqtt_event(&self, component_id: &str, message: Vec<u8>) -> anyhow::Result<()> {
         // Load the guest wasm component
         let (instance, mut store) = self.engine.prepare_instance(component_id).await?;
 
@@ -156,7 +157,7 @@ impl MqttTrigger {
         let instance = SpinMqtt::new(&mut store, &instance)?;
 
         instance
-            .call_handle_message(store, &message.as_bytes().to_vec())
+            .call_handle_message(store, &message)
             .await?
             .map_err(|err| anyhow!("failed to execute guest: {err}"))
     }
@@ -168,7 +169,7 @@ impl MqttTrigger {
         topic: String,
     ) -> anyhow::Result<()> {
         // Receive the messages here from the specific topic in mqtt broker.
-        let client = Client::new(self.address.clone())?;
+        let mut client = AsyncClient::new(self.address.clone())?;
         let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
             .keep_alive_interval(Duration::from_secs(self.keep_alive_interval))
             .user_name(&self.username)
@@ -177,19 +178,32 @@ impl MqttTrigger {
 
         client
             .connect(conn_opts)
+            .await
             .context(format!("failed to connect to {:?}", self.address))?;
         client
             .subscribe(&topic, qos)
+            .await
             .context(format!("failed to subscribe to {topic:?}"))?;
 
-        for msg in client.start_consuming() {
-            if let Some(msg) = msg {
-                _ = self
-                    .handle_mqtt_event(&component_id, &msg.payload_str())
-                    .await
-                    .map_err(|err| tracing::error!("{err}"));
-            } else {
-                continue;
+        // Should the buffer be bounded/configurable?
+        let rx = client.get_stream(None);
+
+        loop {
+            match rx.recv().await {
+                Ok(Some(msg)) => {
+                    // Handle the received message
+                    _ = self
+                        .handle_mqtt_event(&component_id, msg.payload().to_vec())
+                        .await
+                        .map_err(|err| tracing::error!("{err}"));
+                }
+                Ok(None) => {
+                    // Todo: Figure out what this case is
+                }
+                Err(_) => {
+                    // Channel is empty and closed
+                    break;
+                }
             }
         }
 
