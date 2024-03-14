@@ -13,8 +13,7 @@ lint:
 lint-rust-examples:	
 		@echo "Running linting check on example..." \
 		&& cargo clippy --manifest-path "examples/mqtt-app/Cargo.toml" -- -D warnings \
-		&& cargo fmt --manifest-path "examples/mqtt-app/Cargo.toml" -- --check \		
-	done
+		&& cargo fmt --manifest-path "examples/mqtt-app/Cargo.toml" -- --check \
 
 .PHONY: lint-all
 lint-all: lint lint-rust-examples
