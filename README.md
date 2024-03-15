@@ -38,6 +38,37 @@ spin new mqtt-app
 
 Select the template called `mqtt-rust`
 
+## Templating `mqtt` Configuration in `spin.toml`
+
+The `address`, `username`, `password` and `topic` support the ability to be configured using Spin variables. An example of configuring the password using env variables:
+
+```toml
+#spin.toml
+spin_manifest_version = 2
+
+[application]
+name = "mqtt-app"
+version = "0.1.0"
+description = "Demo app to receive MQTT messages."
+authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
+
+[variables]
+password = { required = true }
+
+[application.trigger.mqtt]
+address = "mqtt://localhost:1883"
+username = "user"
+password = "{{ password }}"
+keep_alive_interval = "30"
+...
+```
+
+To inject the Spin variable using environment variables:
+
+```bash
+SPIN_VARIABLE_PASSWORD=password spin up
+```
+
 ## State of Play
 
 1. Authenticates using anonymous and username/password to MQTT server.

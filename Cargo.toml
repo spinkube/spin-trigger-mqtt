@@ -12,6 +12,7 @@ futures = "0.3.25"
 serde = "1.0.188"
 spin-app = { git = "https://github.com/fermyon/spin" }
 spin-core = { git = "https://github.com/fermyon/spin" }
+spin-expressions = { git = "https://github.com/fermyon/spin" }
 spin-trigger = { git = "https://github.com/fermyon/spin" }
 tokio = { version = "1.11", features = ["full"] }
 tracing = { version = "0.1", features = ["log"] }
