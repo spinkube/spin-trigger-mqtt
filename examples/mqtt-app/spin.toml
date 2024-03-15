@@ -1,27 +1,39 @@
-spin_manifest_version = "1"
-authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
-description = "Demo app to receive MQTT messages."
-name = "mqtt-app"
-trigger = { type = "mqtt", address = "mqtt://172.17.0.2:1883", username = "user", password = "password", keep_alive_interval = "30" }
-version = "0.1.0"
+spin_manifest_version = 2
 
-# This spin app has two components mqtt-c01 and mqtt-c02, which subscribe to the two different topics from the single MQTT server.
-[[component]]
-id = "mqtt-c01"
-source = "target/wasm32-wasi/release/mqtt_app.wasm"
-allowed_outbound_hosts = ["mqtt://172.17.0.2:1883"]
-[component.trigger]
+[application]
+name = "mqtt-app"
+version = "0.1.0"
+description = "Demo app to receive MQTT messages."
+authors = ["Suneet Nangia <suneetnangia@gmail.com>"]
+
+[application.trigger.mqtt]
+address = "mqtt://localhost:1883"
+username = "user"
+password = "password"
+keep_alive_interval = "30"
+
+[[trigger.mqtt]]
+id = "trigger-mqtt-c01"
+component = "mqtt-c01"
 topic = "messages-in01"
 qos = "1"
-[component.build]
-command = "cargo build --target wasm32-wasi --release"
 
-[[component]]
-id = "mqtt-c02"
-source = "target/wasm32-wasi/release/mqtt_app.wasm"
-allowed_outbound_hosts = ["mqtt://172.17.0.2:1883"]
-[component.trigger]
+[[trigger.mqtt]]
+id = "trigger-mqtt-c02"
+component = "mqtt-c02"
 topic = "messages-in02"
 qos = "0"
-[component.build]
+
+[component.mqtt-c01]
+source = "target/wasm32-wasi/release/mqtt_app.wasm"
+allowed_outbound_hosts = ["mqtt://localhost:1883"]
+
+[component.mqtt-c01.build]
+command = "cargo build --target wasm32-wasi --release"
+
+[component.mqtt-c02]
+source = "target/wasm32-wasi/release/mqtt_app.wasm"
+allowed_outbound_hosts = ["mqtt://localhost:1883"]
+
+[component.mqtt-c02.build]
 command = "cargo build --target wasm32-wasi --release"
