@@ -66,15 +66,24 @@ impl TriggerExecutor for MqttTrigger {
     type RunConfig = CliArgs;
 
     async fn new(engine: spin_trigger::TriggerAppEngine<Self>) -> anyhow::Result<Self> {
-        let address = engine.app().require_metadata(TRIGGER_METADATA_KEY)?.address;
-        let username = engine
-            .app()
-            .require_metadata(TRIGGER_METADATA_KEY)?
-            .username;
-        let password = engine
-            .app()
-            .require_metadata(TRIGGER_METADATA_KEY)?
-            .password;
+        let address = resolve_template_variable(
+            &engine,
+            engine.app().require_metadata(TRIGGER_METADATA_KEY)?.address,
+        )?;
+        let username = resolve_template_variable(
+            &engine,
+            engine
+                .app()
+                .require_metadata(TRIGGER_METADATA_KEY)?
+                .username,
+        )?;
+        let password = resolve_template_variable(
+            &engine,
+            engine
+                .app()
+                .require_metadata(TRIGGER_METADATA_KEY)?
+                .password,
+        )?;
         let keep_alive_interval = engine
             .app()
             .require_metadata(TRIGGER_METADATA_KEY)?
@@ -87,7 +96,7 @@ impl TriggerExecutor for MqttTrigger {
                 .try_fold(vec![], |mut acc, (_, config)| {
                     let component = config.component.clone();
                     let qos = config.qos.parse::<i32>()?;
-                    let topic = config.topic.clone();
+                    let topic = resolve_template_variable(&engine, config.topic.clone())?;
                     acc.push((component, qos, topic));
                     anyhow::Ok(acc)
                 })?;
@@ -209,4 +218,12 @@ impl MqttTrigger {
 
         Ok(())
     }
+}
+
+fn resolve_template_variable(
+    engine: &TriggerAppEngine<MqttTrigger>,
+    template_string: String,
+) -> anyhow::Result<String> {
+    let template_expr = spin_expressions::Template::new(template_string)?;
+    anyhow::Ok(engine.resolve_template(&template_expr)?)
 }
