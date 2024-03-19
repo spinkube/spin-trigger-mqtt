@@ -13,7 +13,7 @@ The plugin then instantiates a Wasm component and injects the message to the com
 Install MQTT Plugin:
 
 ```
-spin plugin install --url https://raw.githubusercontent.com/spinkube/spin-mqtt-trigger-sdk/main/trigger-mqtt-remote.json --yes
+spin plugin install --url https://raw.githubusercontent.com/spinkube/spin-trigger-mqtt/main/trigger-mqtt-remote.json --yes
 ```
 
 [Note: release management for multiple versions of this plugin/trigger will be added soon]
@@ -27,7 +27,7 @@ If you want to learn more about Spin's plugin model, read [here](https://www.fer
 Install MQTT Template:
 
 ```
-spin templates install --git https://github.com/spinkube/spin-mqtt-trigger-sdk --upgrade
+spin templates install --git https://github.com/spinkube/spin-trigger-mqtt --upgrade
 ```
 
 ### Create Spin App
@@ -78,7 +78,7 @@ SPIN_VARIABLE_PASSWORD=password spin up
 
 ## Dev Loop [Build and Install from Source]
 
-* Open the repo in Dev Container or in pre-configured GitHub [Codespace](https://codespaces.new/spinkube/spin-mqtt-trigger-sdk)
+* Open the repo in Dev Container or in pre-configured GitHub [Codespace](https://codespaces.new/spinkube/spin-trigger-mqtt)
 * Run ```make``` to build and install the plugin locally.
 * Update ```examples/mqtt-app/spin.toml``` to reflect your MQTT server details and ensure it's accessible on the network.
 * Run ```spin build --up --from examples/mqtt-app/spin.toml``` to run the example Spin app.
