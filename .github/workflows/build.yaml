@@ -33,8 +33,8 @@ jobs:
           rustup component add rustfmt
           rustup component add clippy
         
-      - name: Format code
-        run: cargo fmt --all -- --check
+      - name: lint code
+        run: make lint
         
       - name: Run Clippy
         run: cargo clippy --all -- -D warnings   
