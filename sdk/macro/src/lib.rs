@@ -7,6 +7,7 @@ const WIT_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../spin-mqtt.wit
 pub fn mqtt_component(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let func = syn::parse_macro_input!(item as syn::ItemFn);
     let func_name = &func.sig.ident;
+    let await_postfix = func.sig.asyncness.map(|_| quote!(.await));
     let preamble = preamble();
 
     quote!(
@@ -17,13 +18,15 @@ pub fn mqtt_component(_attr: TokenStream, item: TokenStream) -> TokenStream {
             }
             impl self::preamble::Guest for preamble::Mqtt {
                 fn handle_message(payload: ::spin_mqtt_sdk::Payload) -> ::std::result::Result<(), ::spin_mqtt_sdk::Error> {
-                    match super::#func_name(payload) {
-                        ::std::result::Result::Ok(()) => ::std::result::Result::Ok(()),
-                        ::std::result::Result::Err(e) => {
-                            eprintln!("{}", e);
-                            ::std::result::Result::Err(::spin_mqtt_sdk::Error::Other(e.to_string()))
-                        },
-                    }
+                    ::spin_mqtt_sdk::executor::run(async move {
+                        match super::#func_name(payload)#await_postfix {
+                            ::std::result::Result::Ok(()) => ::std::result::Result::Ok(()),
+                            ::std::result::Result::Err(e) => {
+                                eprintln!("{}", e);
+                                ::std::result::Result::Err(::spin_mqtt_sdk::Error::Other(e.to_string()))
+                            },
+                        }
+                    })
                 }
             }
         }

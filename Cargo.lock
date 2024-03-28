@@ -3856,6 +3856,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin-executor"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2df1a5e2cc70a628c9ea6914770c234cc4a292218091e6707ae8be68b4a5de76"
+dependencies = [
+ "futures",
+ "once_cell",
+ "wit-bindgen",
+]
+
+[[package]]
 name = "spin-expressions"
 version = "2.4.0-pre0"
 source = "git+https://github.com/fermyon/spin#35c92cb5a7c32935956f98166cded23e556a84d4"
@@ -4040,6 +4051,7 @@ dependencies = [
 name = "spin-mqtt-sdk"
 version = "0.2.0"
 dependencies = [
+ "spin-executor",
  "spin-mqtt-macro",
  "wit-bindgen",
 ]

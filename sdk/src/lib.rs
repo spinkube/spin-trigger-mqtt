@@ -1,6 +1,9 @@
 pub use spin_mqtt_macro::mqtt_component;
 
 #[doc(hidden)]
+pub use spin_executor as executor;
+
+#[doc(hidden)]
 pub mod wit {
     #![allow(missing_docs)]
 
