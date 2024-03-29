@@ -10,11 +10,11 @@ anyhow = "1.0.68"
 clap = { version = "3.1.15", features = ["derive", "env"] }
 futures = "0.3.25"
 serde = "1.0.188"
-spin-app = { git = "https://github.com/fermyon/spin" }
-spin-core = { git = "https://github.com/fermyon/spin" }
-spin-expressions = { git = "https://github.com/fermyon/spin" }
-spin-trigger = { git = "https://github.com/fermyon/spin" }
-tokio = { version = "1.11", features = ["full"] }
+spin-app = { git = "https://github.com/fermyon/spin", tag = "v2.4.0" }
+spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.4.0" }
+spin-expressions = { git = "https://github.com/fermyon/spin", tag = "v2.4.0" }
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.4.0" }
+tokio = { version = "1.37", features = ["full"] }
 tracing = { version = "0.1", features = ["log"] }
 tracing-subscriber = { version = "0.3.7", features = ["env-filter"] }
 paho-mqtt = { version = "0.12.3", default-features = false, features = [
