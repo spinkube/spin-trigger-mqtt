@@ -15,7 +15,7 @@ interface spin-mqtt-types {
       exactly-once,
   }
 
-  // metadata assocaited with the payload
+  // metadata associated with the payload
   record metadata {
         topic: string,
   }
