@@ -15,6 +15,8 @@ wasmtime::component::bindgen!({
     async: true,
 });
 
+use spin::mqtt_trigger::spin_mqtt_types as mqtt_types;
+
 pub(crate) type RuntimeData = ();
 pub(crate) type _Store = spin_core::Store<RuntimeData>;
 
@@ -115,7 +117,7 @@ impl TriggerExecutor for MqttTrigger {
     async fn run(self, config: Self::RunConfig) -> anyhow::Result<()> {
         if config.test {
             for component in &self.component_configs {
-                self.handle_mqtt_event(&component.0, b"test message".to_vec())
+                self.handle_mqtt_event(&component.0, b"test message".to_vec(), "test".to_string())
                     .await?;
             }
 
@@ -155,7 +157,12 @@ impl TriggerExecutor for MqttTrigger {
 }
 
 impl MqttTrigger {
-    async fn handle_mqtt_event(&self, component_id: &str, message: Vec<u8>) -> anyhow::Result<()> {
+    async fn handle_mqtt_event(
+        &self,
+        component_id: &str,
+        message: Vec<u8>,
+        topic: String,
+    ) -> anyhow::Result<()> {
         // Load the guest wasm component
         let (instance, mut store) = self.engine.prepare_instance(component_id).await?;
 
@@ -163,7 +170,7 @@ impl MqttTrigger {
         let instance = SpinMqtt::new(&mut store, &instance)?;
 
         instance
-            .call_handle_message(store, &message)
+            .call_handle_message(store, &message, &mqtt_types::Metadata { topic })
             .await?
             .map_err(|err| anyhow!("failed to execute guest: {err}"))
     }
@@ -199,7 +206,7 @@ impl MqttTrigger {
                 Ok(Some(msg)) => {
                     // Handle the received message
                     _ = self
-                        .handle_mqtt_event(&component_id, msg.payload().to_vec())
+                        .handle_mqtt_event(&component_id, msg.payload().to_vec(), topic.clone())
                         .await
                         .map_err(|err| tracing::error!("{err}"));
                 }

@@ -17,9 +17,9 @@ pub fn mqtt_component(_attr: TokenStream, item: TokenStream) -> TokenStream {
                 #preamble
             }
             impl self::preamble::Guest for preamble::Mqtt {
-                fn handle_message(payload: ::spin_mqtt_sdk::Payload) -> ::std::result::Result<(), ::spin_mqtt_sdk::Error> {
+                fn handle_message(payload: ::spin_mqtt_sdk::Payload, metadata: ::spin_mqtt_sdk::Metadata) -> ::std::result::Result<(), ::spin_mqtt_sdk::Error> {
                     ::spin_mqtt_sdk::executor::run(async move {
-                        match super::#func_name(payload)#await_postfix {
+                        match super::#func_name(payload, metadata)#await_postfix {
                             ::std::result::Result::Ok(()) => ::std::result::Result::Ok(()),
                             ::std::result::Result::Err(e) => {
                                 eprintln!("{}", e);

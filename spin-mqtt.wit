@@ -15,15 +15,20 @@ interface spin-mqtt-types {
       exactly-once,
   }
 
+  // metadata assocaited with the payload
+  record metadata {
+        topic: string,
+  }
+
   /// The message payload.
   type payload = list<u8>;
 }
 
 world spin-mqtt {
-  use spin-mqtt-types.{error, payload};
+  use spin-mqtt-types.{error, metadata, payload};
 
   /// The entrypoint for a Mqtt handler in wasm component  
-  export handle-message: func(message: payload) -> result<_, error>;
+  export handle-message: func(message: payload, metadata: metadata) -> result<_, error>;
 }
 
 world spin-mqtt-sdk {
