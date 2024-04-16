@@ -17,4 +17,4 @@ pub mod wit {
 pub use wit_bindgen;
 
 #[doc(inline)]
-pub use wit::spin::mqtt_trigger::spin_mqtt_types::{Error, Payload};
+pub use wit::spin::mqtt_trigger::spin_mqtt_types::{Error, Metadata, Payload};
