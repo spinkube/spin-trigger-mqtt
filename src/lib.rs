@@ -206,7 +206,11 @@ impl MqttTrigger {
                 Ok(Some(msg)) => {
                     // Handle the received message
                     _ = self
-                        .handle_mqtt_event(&component_id, msg.payload().to_vec(), topic.clone())
+                        .handle_mqtt_event(
+                            &component_id,
+                            msg.payload().to_vec(),
+                            msg.topic().to_owned(),
+                        )
                         .await
                         .map_err(|err| tracing::error!("{err}"));
                 }
