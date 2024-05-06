@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2  
+        uses: actions/checkout@v4
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -55,7 +55,7 @@ jobs:
           - { target: "aarch64-apple-darwin", os: "macos-latest", arch: "aarch64", extension: "" }
           - { target: "x86_64-pc-windows-msvc", os: "windows-latest", arch: "amd64", extension: ".exe" }
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "${{ runner.os }}-lint-${{ hashFiles('./Cargo.lock') }}"
@@ -68,7 +68,7 @@ jobs:
       - name: Install Spin
         uses: rajatjindal/setup-actions/spin@main
         with:
-          version: "v0.8.0"
+          version: "v2.4.2"
       - name: Install pluginify
         shell: bash
         run: spin plugins install --url https://github.com/itowlson/spin-pluginify/releases/download/canary/pluginify.json --yes
@@ -88,7 +88,7 @@ jobs:
       - name: Pluginify plugin binary
         run: spin pluginify --arch ${{ matrix.config.arch }}
       - name: Archive pluginified
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.PROGRAM_NAME}}-${{ matrix.config.os }}-${{ matrix.config.arch }}
           path: |
@@ -104,7 +104,7 @@ jobs:
       - name: Install Spin
         uses: rajatjindal/setup-actions/spin@main
         with:
-          version: "v2.0.0"
+          version: "v2.4.2"
       - name: Install pluginify
         shell: bash
         run: spin plugins install --url https://github.com/itowlson/spin-pluginify/releases/download/canary/pluginify.json --yes
@@ -123,12 +123,12 @@ jobs:
         run: echo "RELEASE_VERSION=precanary" >> $GITHUB_ENV
 
       - name: Download artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Display structure of downloaded files
         run: ls -R
       - name: pluginify it
         run: |
-          spin pluginify --merge --release-url-base https://github.com/spinkube/spin-trigger-mqtt/releases/download/${{ env.RELEASE_VERSION }}/ >${{ env.PROGRAM_NAME }}.json
+          spin pluginify --merge --release-url-base https://github.com/${{ github.repository }}/releases/download/${{ env.RELEASE_VERSION }}/ >${{ env.PROGRAM_NAME }}.json
       - name: Display merged manifest
         run: cat ${{ env.PROGRAM_NAME }}.json
 
