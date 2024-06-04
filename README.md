@@ -13,7 +13,7 @@ The plugin then instantiates a Wasm component and injects the message to the com
 Install MQTT Plugin:
 
 ```
-spin plugin install --url https://raw.githubusercontent.com/spinkube/spin-trigger-mqtt/main/trigger-mqtt-remote.json --yes
+spin plugin install --url https://github.com/spinkube/spin-trigger-mqtt/releases/download/v0.2.0/trigger-mqtt.json --yes
 ```
 
 [Note: release management for multiple versions of this plugin/trigger will be added soon]
