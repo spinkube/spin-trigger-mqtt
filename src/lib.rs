@@ -211,8 +211,7 @@ impl MqttTrigger {
                             msg.payload().to_vec(),
                             msg.topic().to_owned(),
                         )
-                        .await
-                        .map_err(|err| tracing::error!("{err}"));
+                        .await?;
                 }
                 Ok(None) => {
                     // Todo: Figure out what this case is
