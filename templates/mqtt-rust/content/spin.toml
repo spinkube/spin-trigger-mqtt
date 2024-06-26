@@ -1,16 +1,24 @@
-spin_manifest_version = "1"
+spin_manifest_version = 2
+
+[application]
+name = "{{project-name | kebab_case}}"
+version = "0.1.0"
 authors = ["{{authors}}"]
 description = "{{project-description}}"
-name = "{{project-name}}"
-trigger = { type = "mqtt", address = "{{mqtt-address}}", username = "{{mqtt-username}}", password = "{{mqtt-password}}", keep_alive_interval = "{{mqtt-keep_alive_interval}}" }
-version = "0.1.0"
 
-[[component]]
-id = "{{project-name | kebab_case}}"
-source = "target/wasm32-wasi/release/{{project-name | snake_case}}.wasm"
-allowed_outbound_hosts = ["{{mqtt-address}}"]
-[component.trigger]
+[application.trigger.mqtt]
+address = "{{mqtt-address}}"
+username = "{{mqtt-username}}"
+password = "{{mqtt-password}}"
+keep_alive_interval = "{{mqtt-keep_alive_interval}}"
+
+[[trigger.mqtt]]
+component = "{{project-name | kebab_case}}"
 topic = "{{mqtt-topic}}"
 qos = "{{mqtt-qos}}"
-[component.build]
+
+[component.{{project-name | kebab_case}}]
+source = "target/wasm32-wasi/release/{{project-name | snake_case}}.wasm"
+allowed_outbound_hosts = ["{{mqtt-address}}"]
+[component.{{project-name | kebab_case}}.build]
 command = "cargo build --target wasm32-wasi --release"
