@@ -51,8 +51,8 @@ jobs:
         config:
           - { target: "x86_64-unknown-linux-gnu", os: "ubuntu-20.04", arch: "amd64", extension: "" }
           - { target: "aarch64-unknown-linux-gnu", os: "ubuntu-20.04", arch: "aarch64", extension: "" }
-          - { target: "x86_64-apple-darwin", os: "macos-latest", arch: "amd64", extension: "" }
-          - { target: "aarch64-apple-darwin", os: "macos-latest", arch: "aarch64", extension: "" }
+          - { target: "x86_64-apple-darwin", os: "macos-13", arch: "amd64", extension: "" }
+          - { target: "aarch64-apple-darwin", os: "macos-14", arch: "aarch64", extension: "" }
           - { target: "x86_64-pc-windows-msvc", os: "windows-latest", arch: "amd64", extension: ".exe" }
     steps:
       - uses: actions/checkout@v4
