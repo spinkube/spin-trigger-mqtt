@@ -13,7 +13,7 @@ The plugin then instantiates a Wasm component and injects the message to the com
 Install MQTT Plugin:
 
 ```
-spin plugin install --url https://github.com/spinkube/spin-trigger-mqtt/releases/download/v0.2.0/trigger-mqtt.json --yes
+spin plugin install --url https://github.com/spinkube/spin-trigger-mqtt/releases/download/canary/trigger-mqtt.json --yes
 ```
 
 [Note: release management for multiple versions of this plugin/trigger will be added soon]
@@ -33,10 +33,8 @@ spin templates install --git https://github.com/spinkube/spin-trigger-mqtt --upg
 ### Create Spin App
 
 ```
-spin new mqtt-app
+spin new -t mqtt-rust mqtt-app
 ```
-
-Select the template called `mqtt-rust`
 
 ## Templating `mqtt` Configuration in `spin.toml`
 
