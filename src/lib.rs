@@ -205,13 +205,12 @@ impl MqttTrigger {
             match rx.recv().await {
                 Ok(Some(msg)) => {
                     // Handle the received message
-                    _ = self
-                        .handle_mqtt_event(
-                            &component_id,
-                            msg.payload().to_vec(),
-                            msg.topic().to_owned(),
-                        )
-                        .await?;
+                    self.handle_mqtt_event(
+                        &component_id,
+                        msg.payload().to_vec(),
+                        msg.topic().to_owned(),
+                    )
+                    .await?;
                 }
                 Ok(None) => {
                     // Todo: Figure out what this case is

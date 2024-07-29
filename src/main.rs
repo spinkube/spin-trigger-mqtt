@@ -1,6 +1,5 @@
 use clap::Parser;
 use spin_trigger::cli::TriggerExecutorCommand;
-use std::io::IsTerminal;
 use trigger_mqtt::MqttTrigger;
 
 type Command = TriggerExecutorCommand<MqttTrigger>;

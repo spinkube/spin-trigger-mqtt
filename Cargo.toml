@@ -10,16 +10,16 @@ anyhow = "1.0.68"
 clap = { version = "3.1.15", features = ["derive", "env"] }
 futures = "0.3.25"
 serde = "1.0.188"
-spin-app = { git = "https://github.com/fermyon/spin", tag = "v2.5.1" }
-spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.5.1" }
-spin-expressions = { git = "https://github.com/fermyon/spin", tag = "v2.5.1" }
-spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.5.1" }
-spin-telemetry = { git = "https://github.com/fermyon/spin", tag = "v2.5.1" }
+spin-app = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
+spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
+spin-expressions = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
+spin-telemetry = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
 tokio = { version = "1.37", features = ["full"] }
 paho-mqtt = { version = "0.12.3", default-features = false, features = [
     "vendored-ssl",
 ] }
-wasmtime = { version = "18.0.1", features = ["component-model"] }
+wasmtime = { version = "21.0.1" }
 
 [workspace]
 members = ["sdk", "sdk/macro"]
