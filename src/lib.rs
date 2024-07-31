@@ -2,7 +2,6 @@ use anyhow::{anyhow, Context};
 use clap::Args;
 use paho_mqtt::AsyncClient;
 use serde::{Deserialize, Serialize};
-use spin_app::MetadataKey;
 use spin_core::{async_trait, InstancePre};
 use spin_trigger::{TriggerAppEngine, TriggerExecutor};
 use std::sync::Arc;
@@ -42,7 +41,6 @@ pub struct MqttTrigger {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct TriggerMetadata {
-    r#type: String,
     address: String,
     username: String,
     password: String,
@@ -58,8 +56,6 @@ pub struct MqttTriggerConfig {
     qos: String,
 }
 
-const TRIGGER_METADATA_KEY: MetadataKey<TriggerMetadata> = MetadataKey::new("trigger");
-
 #[async_trait]
 impl TriggerExecutor for MqttTrigger {
     const TRIGGER_TYPE: &'static str = "mqtt";
@@ -71,25 +67,28 @@ impl TriggerExecutor for MqttTrigger {
     async fn new(engine: spin_trigger::TriggerAppEngine<Self>) -> anyhow::Result<Self> {
         let address = resolve_template_variable(
             &engine,
-            engine.app().require_metadata(TRIGGER_METADATA_KEY)?.address,
+            engine
+                .trigger_metadata::<TriggerMetadata>()?
+                .unwrap_or_default()
+                .address,
         )?;
         let username = resolve_template_variable(
             &engine,
             engine
-                .app()
-                .require_metadata(TRIGGER_METADATA_KEY)?
+                .trigger_metadata::<TriggerMetadata>()?
+                .unwrap_or_default()
                 .username,
         )?;
         let password = resolve_template_variable(
             &engine,
             engine
-                .app()
-                .require_metadata(TRIGGER_METADATA_KEY)?
+                .trigger_metadata::<TriggerMetadata>()?
+                .unwrap_or_default()
                 .password,
         )?;
         let keep_alive_interval = engine
-            .app()
-            .require_metadata(TRIGGER_METADATA_KEY)?
+            .trigger_metadata::<TriggerMetadata>()?
+            .unwrap_or_default()
             .keep_alive_interval
             .parse::<u64>()?;
 

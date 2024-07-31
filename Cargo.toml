@@ -17,9 +17,7 @@ spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
 spin-telemetry = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
 tokio = { version = "1.37", features = ["full"] }
 tracing = { version = "0.1", features = ["log"] }
-paho-mqtt = { version = "0.12.3", features = [
-    "vendored-ssl",
-] }
+paho-mqtt = { version = "0.12.3", features = ["vendored-ssl"] }
 wasmtime = { version = "21.0.1" }
 
 [workspace]
