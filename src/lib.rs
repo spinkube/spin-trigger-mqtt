@@ -205,14 +205,16 @@ impl MqttTrigger {
             match rx.recv().await {
                 Ok(Some(msg)) => {
                     // Handle the received message
-                    _ = self
+                    if let Err(e) = self
                         .handle_mqtt_event(
                             &component_id,
                             msg.payload().to_vec(),
                             msg.topic().to_owned(),
                         )
                         .await
-                        .map_err(|err| tracing::error!("{err}"));
+                    {
+                        tracing::error!("Error handling MQTT message: {:?}", e);
+                    }
                 }
                 Ok(None) => {
                     // Todo: Figure out what this case is
