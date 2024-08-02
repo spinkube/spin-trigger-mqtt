@@ -6879,6 +6879,7 @@ dependencies = [
  "spin-telemetry",
  "spin-trigger",
  "tokio",
+ "tracing",
  "wasmtime",
 ]
 
