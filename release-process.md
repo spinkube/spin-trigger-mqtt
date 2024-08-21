@@ -18,7 +18,7 @@ To cut a new release of the MQTT trigger plugin, you will need to do the followi
     # Create a GPG-signed and annotated tag
     git tag -s -m "Spin MQTT Trigger v0.2.0" v0.2.0
 
-    # Push the tag to the remote corresponding to fermyon/spin-trigger-mqtt (here 'origin')
+    # Push the tag to the remote corresponding to spinkube/spin-trigger-mqtt (here 'origin')
     git push origin v0.2.0
     ```
 
