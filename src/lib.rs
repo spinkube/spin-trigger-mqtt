@@ -17,13 +17,6 @@ wasmtime::component::bindgen!({
 
 use spin::mqtt_trigger::spin_mqtt_types as mqtt_types;
 
-#[derive(Args)]
-pub struct CliArgs {
-    /// If true, run each component once and exit
-    #[clap(long)]
-    pub test: bool,
-}
-
 // The trigger structure with all values processed and ready
 #[derive(Clone)]
 pub struct MqttTrigger {
@@ -33,44 +26,6 @@ pub struct MqttTrigger {
     component_configs: Vec<ComponentConfig>,
     /// Whether to run in test mode
     test: bool,
-}
-
-// Trigger settings (raw serialization format)
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-struct TriggerMetadata {
-    address: String,
-    username: String,
-    password: String,
-    keep_alive_interval: u64,
-}
-
-impl TriggerMetadata {
-    /// Resolve any variables inside the trigger metadata.
-    async fn resolve_variables<F: RuntimeFactors>(
-        &mut self,
-        trigger_app: &TriggerApp<MqttTrigger, F>,
-    ) -> anyhow::Result<()> {
-        let address = resolve_variables(trigger_app, self.address.clone()).await?;
-        let username = resolve_variables(trigger_app, self.username.clone()).await?;
-        let password = resolve_variables(trigger_app, self.password.clone()).await?;
-        self.address = address;
-        self.username = username;
-        self.password = password;
-        Ok(())
-    }
-}
-
-// Per-component settings (raw serialization format)
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct ComponentConfig {
-    /// The component id
-    component: String,
-    /// The topic
-    topic: String,
-    /// The QoS level
-    qos: i32,
 }
 
 impl<F: RuntimeFactors> Trigger<F> for MqttTrigger {
@@ -143,6 +98,7 @@ impl<F: RuntimeFactors> Trigger<F> for MqttTrigger {
 }
 
 impl MqttTrigger {
+    /// Handle a specific MQTT event
     async fn handle_mqtt_event<F: RuntimeFactors>(
         &self,
         trigger_app: &TriggerApp<Self, F>,
@@ -162,6 +118,7 @@ impl MqttTrigger {
             .map_err(|err| anyhow!("failed to execute guest: {err}"))
     }
 
+    /// Run the listener for a specific component
     async fn run_listener<F: RuntimeFactors>(
         &self,
         trigger_app: &TriggerApp<Self, F>,
@@ -217,6 +174,52 @@ impl MqttTrigger {
 
         Ok(())
     }
+}
+
+/// Command line arguments
+#[derive(Args)]
+pub struct CliArgs {
+    /// If true, run each component once and exit
+    #[clap(long)]
+    pub test: bool,
+}
+
+// Trigger settings (raw serialization format)
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct TriggerMetadata {
+    address: String,
+    username: String,
+    password: String,
+    keep_alive_interval: u64,
+}
+
+impl TriggerMetadata {
+    /// Resolve any variables inside the trigger metadata.
+    async fn resolve_variables<F: RuntimeFactors>(
+        &mut self,
+        trigger_app: &TriggerApp<MqttTrigger, F>,
+    ) -> anyhow::Result<()> {
+        let address = resolve_variables(trigger_app, self.address.clone()).await?;
+        let username = resolve_variables(trigger_app, self.username.clone()).await?;
+        let password = resolve_variables(trigger_app, self.password.clone()).await?;
+        self.address = address;
+        self.username = username;
+        self.password = password;
+        Ok(())
+    }
+}
+
+// Per-component settings (raw serialization format)
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct ComponentConfig {
+    /// The component id
+    component: String,
+    /// The topic
+    topic: String,
+    /// The QoS level
+    qos: i32,
 }
 
 /// Resolve variables in an expression against the variables in the provided trigger app.
