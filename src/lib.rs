@@ -2,10 +2,11 @@ use anyhow::{anyhow, Context};
 use clap::Args;
 use paho_mqtt::AsyncClient;
 use serde::{Deserialize, Serialize};
-use spin_core::{async_trait, InstancePre};
-use spin_trigger::{TriggerAppEngine, TriggerExecutor};
-use std::sync::Arc;
-use std::time::Duration;
+use spin_app::App;
+use spin_factor_variables::VariablesFactor;
+use spin_factors::RuntimeFactors;
+use spin_trigger::{Trigger, TriggerApp};
+use std::{sync::Arc, time::Duration};
 
 // https://docs.rs/wasmtime/latest/wasmtime/component/macro.bindgen.html
 wasmtime::component::bindgen!({
@@ -15,9 +16,6 @@ wasmtime::component::bindgen!({
 });
 
 use spin::mqtt_trigger::spin_mqtt_types as mqtt_types;
-
-pub(crate) type RuntimeData = ();
-pub(crate) type _Store = spin_core::Store<RuntimeData>;
 
 #[derive(Args)]
 pub struct CliArgs {
@@ -29,99 +27,91 @@ pub struct CliArgs {
 // The trigger structure with all values processed and ready
 #[derive(Clone)]
 pub struct MqttTrigger {
-    engine: Arc<TriggerAppEngine<Self>>,
-    address: String,
-    username: String,
-    password: String,
-    keep_alive_interval: u64,
-    component_configs: Vec<(String, i32, String)>,
+    /// Trigger settings
+    metadata: TriggerMetadata,
+    /// Per-component settings
+    component_configs: Vec<ComponentConfig>,
+    /// Whether to run in test mode
+    test: bool,
 }
 
-// Application settings (raw serialization format)
+// Trigger settings (raw serialization format)
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 struct TriggerMetadata {
     address: String,
     username: String,
     password: String,
-    keep_alive_interval: String,
+    keep_alive_interval: u64,
+}
+
+impl TriggerMetadata {
+    /// Resolve any variables inside the trigger metadata.
+    async fn resolve_variables<F: RuntimeFactors>(
+        &mut self,
+        trigger_app: &TriggerApp<MqttTrigger, F>,
+    ) -> anyhow::Result<()> {
+        let address = resolve_variables(trigger_app, self.address.clone()).await?;
+        let username = resolve_variables(trigger_app, self.username.clone()).await?;
+        let password = resolve_variables(trigger_app, self.password.clone()).await?;
+        self.address = address;
+        self.username = username;
+        self.password = password;
+        Ok(())
+    }
 }
 
 // Per-component settings (raw serialization format)
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
-pub struct MqttTriggerConfig {
+pub struct ComponentConfig {
+    /// The component id
     component: String,
+    /// The topic
     topic: String,
-    qos: String,
+    /// The QoS level
+    qos: i32,
 }
 
-#[async_trait]
-impl TriggerExecutor for MqttTrigger {
-    const TRIGGER_TYPE: &'static str = "mqtt";
-    type RuntimeData = RuntimeData;
-    type TriggerConfig = MqttTriggerConfig;
-    type RunConfig = CliArgs;
-    type InstancePre = InstancePre<RuntimeData>;
+impl<F: RuntimeFactors> Trigger<F> for MqttTrigger {
+    const TYPE: &'static str = "mqtt";
+    type InstanceState = ();
+    type CliArgs = CliArgs;
 
-    async fn new(engine: spin_trigger::TriggerAppEngine<Self>) -> anyhow::Result<Self> {
-        let address = resolve_template_variable(
-            &engine,
-            engine
-                .trigger_metadata::<TriggerMetadata>()?
-                .unwrap_or_default()
-                .address,
-        )?;
-        let username = resolve_template_variable(
-            &engine,
-            engine
-                .trigger_metadata::<TriggerMetadata>()?
-                .unwrap_or_default()
-                .username,
-        )?;
-        let password = resolve_template_variable(
-            &engine,
-            engine
-                .trigger_metadata::<TriggerMetadata>()?
-                .unwrap_or_default()
-                .password,
-        )?;
-        let keep_alive_interval = engine
-            .trigger_metadata::<TriggerMetadata>()?
-            .unwrap_or_default()
-            .keep_alive_interval
-            .parse::<u64>()?;
+    fn new(cli_args: Self::CliArgs, app: &App) -> anyhow::Result<Self> {
+        let trigger_type = <Self as Trigger<F>>::TYPE;
+        let metadata = app
+            .get_trigger_metadata::<TriggerMetadata>(trigger_type)?
+            .unwrap_or_default();
 
-        let component_configs =
-            engine
-                .trigger_configs()
-                .try_fold(vec![], |mut acc, (_, config)| {
-                    let component = config.component.clone();
-                    let qos = config.qos.parse::<i32>()?;
-                    let topic = resolve_template_variable(&engine, config.topic.clone())?;
-                    acc.push((component, qos, topic));
-                    anyhow::Ok(acc)
-                })?;
+        let component_configs = app
+            .trigger_configs::<ComponentConfig>(trigger_type)?
+            .into_iter()
+            .map(|(_, config)| config)
+            .collect();
 
         Ok(Self {
-            engine: Arc::new(engine),
-            address,
-            username,
-            password,
-            keep_alive_interval,
+            metadata,
             component_configs,
+            test: cli_args.test,
         })
     }
 
-    async fn run(self, config: Self::RunConfig) -> anyhow::Result<()> {
-        if config.test {
+    async fn run(mut self, trigger_app: TriggerApp<Self, F>) -> anyhow::Result<()> {
+        if self.test {
             for component in &self.component_configs {
-                self.handle_mqtt_event(&component.0, b"test message".to_vec(), "test".to_string())
-                    .await?;
+                self.handle_mqtt_event(
+                    &trigger_app,
+                    &component.component,
+                    b"test message".to_vec(),
+                    "test".to_string(),
+                )
+                .await?;
             }
 
             Ok(())
         } else {
+            self.metadata.resolve_variables(&trigger_app).await?;
             tokio::spawn(async move {
                 // This trigger spawns threads, which Ctrl+C does not kill. So
                 // for this case we need to detect Ctrl+C and shut those threads
@@ -132,19 +122,16 @@ impl TriggerExecutor for MqttTrigger {
                 std::process::exit(0);
             });
 
-            let tasks: Vec<_> = self
-                .component_configs
-                .clone()
-                .into_iter()
-                .map(|(component_id, mqtt_qos, mqtt_topic)| {
-                    let trigger = self.clone();
-                    tokio::spawn(async move {
-                        trigger
-                            .run_listener(component_id.clone(), mqtt_qos, mqtt_topic.clone())
-                            .await
-                    })
-                })
-                .collect();
+            let trigger = Arc::new(self);
+            let trigger_app = Arc::new(trigger_app);
+            let tasks = trigger.component_configs.iter().map(|component_config| {
+                let trigger = trigger.clone();
+                let trigger_app = trigger_app.clone();
+                let component_config = component_config.clone();
+                tokio::spawn(
+                    async move { trigger.run_listener(&trigger_app, component_config).await },
+                )
+            });
 
             // wait for the first handle to be returned and drop the rest
             let (result, _, rest) = futures::future::select_all(tasks).await;
@@ -156,15 +143,16 @@ impl TriggerExecutor for MqttTrigger {
 }
 
 impl MqttTrigger {
-    async fn handle_mqtt_event(
+    async fn handle_mqtt_event<F: RuntimeFactors>(
         &self,
+        trigger_app: &TriggerApp<Self, F>,
         component_id: &str,
         message: Vec<u8>,
         topic: String,
     ) -> anyhow::Result<()> {
         // Load the guest wasm component
-        let (instance, mut store) = self.engine.prepare_instance(component_id).await?;
-
+        let instance_builder = trigger_app.prepare(component_id)?;
+        let (instance, mut store) = instance_builder.instantiate(()).await?;
         // SpinMqtt is auto generated by bindgen as per WIT files referenced above.
         let instance = SpinMqtt::new(&mut store, &instance)?;
 
@@ -174,30 +162,31 @@ impl MqttTrigger {
             .map_err(|err| anyhow!("failed to execute guest: {err}"))
     }
 
-    async fn run_listener(
+    async fn run_listener<F: RuntimeFactors>(
         &self,
-        component_id: String,
-        qos: i32,
-        topic: String,
+        trigger_app: &TriggerApp<Self, F>,
+        config: ComponentConfig,
     ) -> anyhow::Result<()> {
+        let topic = resolve_variables(trigger_app, config.topic).await?;
+
         // Receive the messages here from the specific topic in mqtt broker.
-        let mut client = AsyncClient::new(self.address.clone())?;
+        let mut client = AsyncClient::new(self.metadata.address.as_str())?;
         let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
-            .keep_alive_interval(Duration::from_secs(self.keep_alive_interval))
-            .user_name(&self.username)
-            .password(&self.password)
+            .keep_alive_interval(Duration::from_secs(self.metadata.keep_alive_interval))
+            .user_name(&self.metadata.username)
+            .password(&self.metadata.password)
             .finalize();
 
         client
             .connect(conn_opts)
             .await
-            .context(format!("failed to connect to {:?}", self.address))?;
+            .context(format!("failed to connect to '{}'", self.metadata.address))?;
         client
-            .subscribe(&topic, qos)
+            .subscribe(&topic, config.qos)
             .await
-            .context(format!("failed to subscribe to {topic:?}"))?;
+            .context(format!("failed to subscribe to '{topic}'"))?;
 
-        // Should the buffer be bounded/configurable?
+        // TODO: Should the buffer be bounded/configurable?
         let rx = client.get_stream(None);
 
         loop {
@@ -206,7 +195,8 @@ impl MqttTrigger {
                     // Handle the received message
                     if let Err(e) = self
                         .handle_mqtt_event(
-                            &component_id,
+                            trigger_app,
+                            &config.component,
                             msg.payload().to_vec(),
                             msg.topic().to_owned(),
                         )
@@ -229,10 +219,14 @@ impl MqttTrigger {
     }
 }
 
-fn resolve_template_variable(
-    engine: &TriggerAppEngine<MqttTrigger>,
-    template_string: String,
+/// Resolve variables in an expression against the variables in the provided trigger app.
+async fn resolve_variables<F: RuntimeFactors>(
+    trigger_app: &TriggerApp<MqttTrigger, F>,
+    expr: String,
 ) -> anyhow::Result<String> {
-    let template_expr = spin_expressions::Template::new(template_string)?;
-    anyhow::Ok(engine.resolve_template(&template_expr)?)
+    match trigger_app.configured_app().app_state::<VariablesFactor>() {
+        Ok(variables) => anyhow::Ok(variables.resolve_expression(expr).await?),
+        Err(spin_factors::Error::NoSuchFactor(_)) => Ok(expr),
+        Err(err) => Err(err.into()),
+    }
 }

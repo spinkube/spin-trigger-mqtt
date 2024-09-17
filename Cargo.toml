@@ -10,15 +10,18 @@ anyhow = "1.0.68"
 clap = { version = "3.1.15", features = ["derive", "env"] }
 futures = "0.3.25"
 serde = "1.0.188"
-spin-app = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
-spin-core = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
-spin-expressions = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
-spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
-spin-telemetry = { git = "https://github.com/fermyon/spin", tag = "v2.6.0" }
+spin-app = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-core = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-expressions = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-factors = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-runtime-factors = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-trigger = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-telemetry = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
+spin-factor-variables = { git = "https://github.com/fermyon/spin", rev = "b2692def9f322f33b24c56aa3f9b6cc969ba29e8" }
 tokio = { version = "1.37", features = ["full"] }
 tracing = { version = "0.1", features = ["log"] }
 paho-mqtt = { version = "0.12.3", features = ["vendored-ssl"] }
-wasmtime = { version = "21.0.1" }
+wasmtime = { version = "22.0" }
 
 [workspace]
 members = ["sdk", "sdk/macro"]
