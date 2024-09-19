@@ -1,8 +1,9 @@
 use clap::Parser;
-use spin_trigger::cli::TriggerExecutorCommand;
+use spin_runtime_factors::FactorsBuilder;
+use spin_trigger::cli::FactorsTriggerCommand;
 use trigger_mqtt::MqttTrigger;
 
-type Command = TriggerExecutorCommand<MqttTrigger>;
+type Command = FactorsTriggerCommand<MqttTrigger, FactorsBuilder>;
 
 #[tokio::main]
 async fn main() -> Result<(), anyhow::Error> {
