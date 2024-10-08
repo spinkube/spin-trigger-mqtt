@@ -128,8 +128,9 @@ impl MqttTrigger {
 
         // Receive the messages here from the specific topic in mqtt broker.
         let mut client = AsyncClient::new(self.metadata.address.as_str())?;
+        let keep_alive_interval = self.metadata.keep_alive_interval.parse::<u64>()?;
         let conn_opts = paho_mqtt::ConnectOptionsBuilder::new()
-            .keep_alive_interval(Duration::from_secs(self.metadata.keep_alive_interval))
+            .keep_alive_interval(Duration::from_secs(keep_alive_interval))
             .user_name(&self.metadata.username)
             .password(&self.metadata.password)
             .finalize();
@@ -138,8 +139,9 @@ impl MqttTrigger {
             .connect(conn_opts)
             .await
             .context(format!("failed to connect to '{}'", self.metadata.address))?;
+        let qos = config.qos.parse::<i32>()?;
         client
-            .subscribe(&topic, config.qos)
+            .subscribe(&topic, qos)
             .await
             .context(format!("failed to subscribe to '{topic}'"))?;
 
@@ -191,7 +193,7 @@ struct TriggerMetadata {
     address: String,
     username: String,
     password: String,
-    keep_alive_interval: u64,
+    keep_alive_interval: String,
 }
 
 impl TriggerMetadata {
@@ -219,7 +221,7 @@ pub struct ComponentConfig {
     /// The topic
     topic: String,
     /// The QoS level
-    qos: i32,
+    qos: String,
 }
 
 /// Resolve variables in an expression against the variables in the provided trigger app.
