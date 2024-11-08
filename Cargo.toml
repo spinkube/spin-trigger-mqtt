@@ -1,6 +1,6 @@
 [package]
 name = "trigger-mqtt"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
 
 [dependencies]
@@ -8,18 +8,18 @@ anyhow = "1.0.68"
 clap = { version = "3.1.15", features = ["derive", "env"] }
 futures = "0.3.25"
 serde = "1.0.188"
-spin-app = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-core = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-expressions = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-factors = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-runtime-factors = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-trigger = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-telemetry = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
-spin-factor-variables = { git = "https://github.com/fermyon/spin", rev = "485b04090644ecfda4d0034891a5feca9a90332c" }
+spin-app = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-core = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-expressions = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-factors = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-runtime-factors = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-trigger = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-telemetry = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
+spin-factor-variables = { git = "https://github.com/fermyon/spin", tag = "v3.0.0" }
 tokio = { version = "1.37", features = ["full"] }
 tracing = { version = "0.1", features = ["log"] }
 paho-mqtt = { version = "0.12.3", features = ["vendored-ssl"] }
-wasmtime = { version = "22.0" }
+wasmtime = { version = "25.0" }
 
 [workspace]
 members = ["sdk", "sdk/macro"]
