@@ -13,6 +13,11 @@ on:
 permissions:
   contents: write
 
+# Construct a concurrency group to be shared across workflow runs.
+# The default behavior ensures that only one is running at a time, with
+# all others queuing and thus not interrupting runs that are in-flight.
+concurrency: ${{ github.workflow }}
+
 env:
   PROGRAM_NAME: trigger-mqtt
 
@@ -26,7 +31,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.79
+          toolchain: 1.81
         
       - name: Install dependencies
         run: |
@@ -63,7 +68,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.79
+          toolchain: 1.81
           targets: ${{ matrix.config.target }}
       - name: Install Spin
         uses: rajatjindal/setup-actions/spin@main
